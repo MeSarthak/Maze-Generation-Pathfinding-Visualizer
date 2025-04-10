@@ -1,12 +1,66 @@
-# React + Vite
+# 🧩 Maze Generation & Pathfinding Visualizer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An interactive web app to visualize maze generation and pathfinding algorithms in action 🚀. Built using **React**, styled with **Tailwind CSS**, and powered by **Vite** for ultra-fast performance. Ideal for students, developers, and visual learners!
 
-Currently, two official plugins are available:
+![Maze Generation Preview](./screenshots/maze-generation.png)
+![Pathfinding Preview](./screenshots/pathfinding.png)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 📸 Screenshots
 
-## Expanding the ESLint configuration
+### 🔧 Maze Generation
+![Maze Generation](./screenshots/maze-generating.png)
 
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+### 🔍 Pathfinding Algorithm
+
+![Pathfinding](./screenshots/path-finding.png)
+
+---
+
+## 🔗 Live Demo
+
+Check it out here 👇  
+👉 [Maze Generation & Pathfinding Visualizer](https://maze-generation-pathfinding-visualizer.vercel.app)
+
+---
+
+## ✨ Features
+
+- 🎯 Visualize classic **maze generation** algorithms:
+  - Recursive Backtracking
+  - Prim’s Algorithm
+  - Kruskal’s Algorithm
+- 🧠 Understand **pathfinding** algorithms:
+  - A* (A-Star)
+  - Dijkstra’s Algorithm
+- 🖱️ Interact with the grid: place walls, drag start/end nodes
+- ♻️ Reset the grid and try different combinations
+- 🧼 Clean and responsive design
+
+---
+
+## ⚙️ Tech Stack
+
+- **Frontend**: React (Vite), Tailwind CSS
+- **Languages**: JavaScript (ES6+), HTML5, CSS3
+
+---
+
+## 📁 Folder Structure
+
+📦 Maze-Generation-Pathfinding-Visualizer 
+├── 📂 public/ ├── 📂 src/ │ 
+├── 📂 components/ # All UI and grid logic │ 
+├── 📂 algorithms/ # Maze & pathfinding logic │ 
+├── App.jsx # Root component 
+│ └── main.jsx # Entry point 
+├── 📂 styles/ │ └── tailwind.css 
+├── package.json 
+├── vite.config.js 
+└── README.md
+
+
+🧑‍💻 Author
+Made with ❤️ by Sarthak
+📬 Drop a ⭐ if you like the project!
