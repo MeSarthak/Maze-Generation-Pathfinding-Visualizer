@@ -533,6 +533,11 @@ export default function MazeVisualizer() {
                   isRunning={gridState !== "idle"}
                 />
               </div>
+              
+
+              <AlgorithmInfo algorithm={selectedAlgorithm} tab={activeTab} />
+
+              
             </div>
 
             <div className="w-full lg:w-80 space-y-4">
@@ -545,16 +550,12 @@ export default function MazeVisualizer() {
                 onSpeedChange={handleSpeedChange}
                 gridState={gridState}
               />
-
               <AlgorithmTabs
                 activeTab={activeTab}
                 onTabChange={handleTabChange}
                 selectedAlgorithm={selectedAlgorithm}
                 onAlgorithmSelect={handleAlgorithmSelect}
               />
-
-              <AlgorithmInfo algorithm={selectedAlgorithm} tab={activeTab} />
-
               <MazeTemplates onApplyTemplate={handleApplyTemplate} />
             </div>
           </div>

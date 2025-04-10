@@ -1,5 +1,3 @@
-"use client"
-
 import { useRef, useEffect } from "react"
 
 export default function MazeGrid({ grid, onCellClick, onCellMouseDown, onCellMouseEnter, onCellMouseUp }) {

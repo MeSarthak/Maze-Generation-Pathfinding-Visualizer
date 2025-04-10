@@ -1,4 +1,3 @@
-"use client"
 
 import { Slider } from "./ui/slider"
 import { Button } from "./ui/button"

@@ -1,5 +1,3 @@
-"use client"
-
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { Slider } from "./ui/slider"
 import { Button } from "./ui/button"
