@@ -57,7 +57,9 @@ Check it out here 👇
 ├── vite.config.js 
 └── README.md
 
+---
 
-🧑‍💻 Author
+## 🧑‍💻 Author
+
 Made with ❤️ by Sarthak
 📬 Drop a ⭐ if you like the project!
