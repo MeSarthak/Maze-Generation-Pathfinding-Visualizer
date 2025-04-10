@@ -2,9 +2,6 @@
 
 An interactive web app to visualize maze generation and pathfinding algorithms in action 🚀. Built using **React**, styled with **Tailwind CSS**, and powered by **Vite** for ultra-fast performance. Ideal for students, developers, and visual learners!
 
-![Maze Generation Preview](./screenshots/maze-generation.png)
-![Pathfinding Preview](./screenshots/pathfinding.png)
-
 ## 📸 Screenshots
 
 ### 🔧 Maze Generation
