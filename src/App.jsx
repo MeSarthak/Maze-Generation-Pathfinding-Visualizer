@@ -5,7 +5,6 @@ import AlgorithmTabs from "./components/algorithm-tabs"
 import PerformanceMetrics from "./components/performance-metrics"
 import AlgorithmInfo from "./components/algorithm-info"
 import GridControls from "./components/grid-controls"
-import MazeTemplates from "./components/maze-templates"
 import ComparisonView from "./components/comparison-view"
 import { Tabs, TabsList, TabsTrigger } from "./components/ui/tabs"
 import { Button } from "./components/ui/button"
@@ -180,11 +179,6 @@ export default function MazeVisualizer() {
 
   const handleVisualizePath = async () => {
     if (gridState !== "idle") return
-
-    if (viewMode === "comparison") {
-      await runComparisonAlgorithms()
-      return
-    }
 
     // Reset visited and path cells, but keep walls
     const resetGrid = grid.map((row) =>
@@ -388,40 +382,8 @@ export default function MazeVisualizer() {
     }
   }
 
-  const handleViewModeChange = (mode) => {
-    setViewMode(mode)
-
-    // Clear comparison data when switching away from comparison view
-    if (mode !== "comparison") {
-      setComparisonGrids({})
-      setComparisonPerformance({})
-    }
-  }
-
   const handleComparisonAlgorithmsChange = (algorithms) => {
     setComparisonAlgorithms(algorithms)
-  }
-
-  const handleApplyTemplate = (template) => {
-    if (gridState !== "idle") return
-
-    // Apply the template to the grid
-    const newGrid = grid.map((row, rowIndex) =>
-      row.map((cell, colIndex) => {
-        // Calculate relative position in the template
-        const templateRow = Math.floor((rowIndex / gridSize.rows) * template.grid.length)
-        const templateCol = Math.floor((colIndex / gridSize.cols) * template.grid[0].length)
-
-        return {
-          ...cell,
-          isWall: template.grid[templateRow][templateCol].isWall,
-          isVisited: false,
-          isPath: false,
-        }
-      }),
-    )
-
-    setGrid(newGrid)
   }
 
   const handleExportMaze = () => {
@@ -479,27 +441,21 @@ export default function MazeVisualizer() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      <header className="py-6 px-4 text-center">
+      <header className="px-4 py-6 text-center">
         <h1 className="text-3xl font-bold text-gray-900">Maze Generation & Pathfinding Visualizer</h1>
-        <p className="mt-2 text-gray-600 max-w-2xl mx-auto">
+        <p className="max-w-2xl mx-auto mt-2 text-gray-600">
           Explore and visualize different maze generation and pathfinding algorithms with this interactive tool.
         </p>
 
-        <div className="flex justify-center mt-4 gap-2">
-          <Tabs value={viewMode} onValueChange={(value) => handleViewModeChange(value)} className="w-auto">
-            <TabsList>
-              <TabsTrigger value="standard">Standard View</TabsTrigger>
-              <TabsTrigger value="comparison">Comparison View</TabsTrigger>
-            </TabsList>
-          </Tabs>
+        <div className="flex justify-center gap-2 mt-4">
 
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={handleExportMaze} title="Export Maze">
-              <Download className="h-4 w-4 mr-1" />
+              <Download className="w-4 h-4 mr-1" />
               Export
             </Button>
             <Button variant="outline" size="sm" onClick={handleImportClick} title="Import Maze">
-              <Upload className="h-4 w-4 mr-1" />
+              <Upload className="w-4 h-4 mr-1" />
               Import
             </Button>
             <input type="file" ref={fileInputRef} onChange={handleImportMaze} accept=".json" className="hidden" />
@@ -507,69 +463,57 @@ export default function MazeVisualizer() {
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col p-4 gap-4 max-w-7xl mx-auto w-full">
-        {viewMode === "standard" ? (
-          <div className="flex flex-col lg:flex-row gap-4">
-            <div className="flex-1 flex flex-col gap-4">
-              <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
-                <MazeGrid
-                  grid={grid}
-                  onCellClick={handleCellClick}
-                  onCellMouseDown={handleCellMouseDown}
-                  onCellMouseEnter={handleCellMouseEnter}
-                  onCellMouseUp={handleCellMouseUp}
-                />
-              </div>
-
-              <div className="flex gap-4">
-                <PerformanceMetrics data={performanceData} />
-                <GridControls
-                  gridSize={gridSize}
-                  onGridSizeChange={handleGridSizeChange}
-                  stepMode={stepMode}
-                  onStepModeToggle={handleStepModeToggle}
-                  onStepForward={handleStepForward}
-                  onStepBackward={handleStepBackward}
-                  isRunning={gridState !== "idle"}
-                />
-              </div>
-              
-
-              <AlgorithmInfo algorithm={selectedAlgorithm} tab={activeTab} />
-
-              
+      <main className="flex flex-col flex-1 w-full gap-4 p-4 mx-auto max-w-7xl">
+        
+        <div className="flex flex-col gap-4 lg:flex-row">
+          <div className="flex flex-col flex-1 gap-4">
+            <div className="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-md">
+              <MazeGrid
+                grid={grid}
+                onCellClick={handleCellClick}
+                onCellMouseDown={handleCellMouseDown}
+                onCellMouseEnter={handleCellMouseEnter}
+                onCellMouseUp={handleCellMouseUp}
+              />
             </div>
 
-            <div className="w-full lg:w-80 space-y-4">
-              <ControlPanel
-                onGenerate={handleStartMazeGeneration}
-                onVisualizePath={handleVisualizePath}
-                onClearPath={handleClearPath}
-                onClearAll={handleClearAll}
-                animationSpeed={animationSpeed}
-                onSpeedChange={handleSpeedChange}
-                gridState={gridState}
+            <div className="flex gap-4">
+              <PerformanceMetrics data={performanceData} />
+              <GridControls
+                gridSize={gridSize}
+                onGridSizeChange={handleGridSizeChange}
+                stepMode={stepMode}
+                onStepModeToggle={handleStepModeToggle}
+                onStepForward={handleStepForward}
+                onStepBackward={handleStepBackward}
+                isRunning={gridState !== "idle"}
               />
-              <AlgorithmTabs
-                activeTab={activeTab}
-                onTabChange={handleTabChange}
-                selectedAlgorithm={selectedAlgorithm}
-                onAlgorithmSelect={handleAlgorithmSelect}
-              />
-              <MazeTemplates onApplyTemplate={handleApplyTemplate} />
             </div>
+            
+
+            <AlgorithmInfo algorithm={selectedAlgorithm} tab={activeTab} />
+
+            
           </div>
-        ) : (
-          <ComparisonView
-            baseGrid={grid}
-            comparisonGrids={comparisonGrids}
-            performanceData={comparisonPerformance}
-            algorithms={comparisonAlgorithms}
-            onAlgorithmsChange={handleComparisonAlgorithmsChange}
-            onRunComparison={handleVisualizePath}
-            isRunning={gridState !== "idle"}
-          />
-        )}
+
+          <div className="w-full space-y-4 lg:w-80">
+            <ControlPanel
+              onGenerate={handleStartMazeGeneration}
+              onVisualizePath={handleVisualizePath}
+              onClearPath={handleClearPath}
+              onClearAll={handleClearAll}
+              animationSpeed={animationSpeed}
+              onSpeedChange={handleSpeedChange}
+              gridState={gridState}
+            />
+            <AlgorithmTabs
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
+              selectedAlgorithm={selectedAlgorithm}
+              onAlgorithmSelect={handleAlgorithmSelect}
+            />
+          </div>
+        </div>
       </main>
     </div>
   )
