@@ -5,8 +5,6 @@ import AlgorithmTabs from "./components/algorithm-tabs"
 import PerformanceMetrics from "./components/performance-metrics"
 import AlgorithmInfo from "./components/algorithm-info"
 import GridControls from "./components/grid-controls"
-import ComparisonView from "./components/comparison-view"
-import { Tabs, TabsList, TabsTrigger } from "./components/ui/tabs"
 import { Button } from "./components/ui/button"
 import { Download, Upload } from "lucide-react"
 import { generateMaze } from "./lib/maze-generators"
@@ -490,9 +488,7 @@ export default function MazeVisualizer() {
               />
             </div>
             
-
             <AlgorithmInfo algorithm={selectedAlgorithm} tab={activeTab} />
-
             
           </div>
 
