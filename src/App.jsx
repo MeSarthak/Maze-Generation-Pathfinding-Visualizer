@@ -26,20 +26,16 @@ export default function MazeVisualizer() {
     pathLength: 0,
     executionTime: 0,
   })
-  const [viewMode, setViewMode] = useState("standard")
   const [stepMode, setStepMode] = useState(false)
-  const [comparisonAlgorithms, setComparisonAlgorithms] = useState(["aStar", "dijkstra"])
-  const [comparisonGrids, setComparisonGrids] = useState({})
-  const [comparisonPerformance, setComparisonPerformance] = useState({})
 
   const fileInputRef = useRef(null)
   const animationRef = useRef(null)
   const animationStepsRef = useRef([])
   const currentStepRef = useRef(0)
 
-  // Initialize grid
   useEffect(() => {
     initializeGrid()
+    // eslint-disable-next-line
   }, [gridSize])
 
   const initializeGrid = () => {
@@ -73,10 +69,8 @@ export default function MazeVisualizer() {
     const newGrid = [...grid]
     const cell = newGrid[row][col]
 
-    // If start or end cell is clicked, don't toggle wall
     if (cell.isStart || cell.isEnd) return
 
-    // Toggle wall state
     cell.isWall = !cell.isWall
     setGrid(newGrid)
   }
@@ -98,12 +92,10 @@ export default function MazeVisualizer() {
     const newGrid = [...grid]
     const cell = newGrid[row][col]
 
-    // Don't allow dragging to a wall or the other special point
     if (cell.isWall || (isDragging === "start" && cell.isEnd) || (isDragging === "end" && cell.isStart)) {
       return
     }
 
-    // Update the grid with the new start/end position
     for (let r = 0; r < newGrid.length; r++) {
       for (let c = 0; c < newGrid[0].length; c++) {
         if (isDragging === "start") {
@@ -114,7 +106,6 @@ export default function MazeVisualizer() {
       }
     }
 
-    // Update state
     if (isDragging === "start") {
       setStartCell([row, col])
     } else if (isDragging === "end") {
@@ -131,7 +122,6 @@ export default function MazeVisualizer() {
   const handleStartMazeGeneration = async () => {
     if (gridState !== "idle") return
 
-    // Reset grid before generating new maze
     const resetGrid = grid.map((row) =>
       row.map((cell) => ({
         ...cell,
@@ -153,21 +143,16 @@ export default function MazeVisualizer() {
     })
 
     const startTime = performance.now()
-
-    // Generate maze steps
     const { steps } = await generateMaze(resetGrid, selectedAlgorithm, startCell, endCell)
-
     const endTime = performance.now()
     setPerformanceData((prev) => ({
       ...prev,
       executionTime: Math.round(endTime - startTime),
     }))
 
-    // Store steps for animation
     animationStepsRef.current = steps
     currentStepRef.current = 0
 
-    // Start animation or wait for step in step mode
     if (stepMode) {
       setGrid(steps[0])
     } else {
@@ -178,7 +163,6 @@ export default function MazeVisualizer() {
   const handleVisualizePath = async () => {
     if (gridState !== "idle") return
 
-    // Reset visited and path cells, but keep walls
     const resetGrid = grid.map((row) =>
       row.map((cell) => ({
         ...cell,
@@ -200,15 +184,12 @@ export default function MazeVisualizer() {
     })
 
     const startTime = performance.now()
-
-    // Find path steps
     const { steps, visitedNodesCount, pathLength } = await findPath(
       resetGrid,
       startCell,
       endCell,
       activeTab === "pathfinding" ? selectedAlgorithm : "aStar",
     )
-
     const endTime = performance.now()
     setPerformanceData({
       visitedNodes: visitedNodesCount,
@@ -216,69 +197,14 @@ export default function MazeVisualizer() {
       executionTime: Math.round(endTime - startTime),
     })
 
-    // Store steps for animation
     animationStepsRef.current = steps
     currentStepRef.current = 0
 
-    // Start animation or wait for step in step mode
     if (stepMode) {
       setGrid(steps[0])
     } else {
       animateGeneration()
     }
-  }
-
-  const runComparisonAlgorithms = async () => {
-    if (gridState !== "idle") return
-
-    setGridState("visualizing")
-
-    // Create a copy of the current grid for each algorithm
-    const baseGrid = grid.map((row) =>
-      row.map((cell) => ({
-        ...cell,
-        isVisited: false,
-        isPath: false,
-        distance: Number.POSITIVE_INFINITY,
-        fScore: Number.POSITIVE_INFINITY,
-        gScore: Number.POSITIVE_INFINITY,
-        hScore: 0,
-        previousNode: null,
-      })),
-    )
-
-    const newComparisonGrids = {}
-    const newComparisonPerformance = {}
-
-    // Run each algorithm
-    for (const algorithm of comparisonAlgorithms) {
-      const startTime = performance.now()
-
-      const {
-        grid: resultGrid,
-        visitedNodesCount,
-        pathLength,
-      } = await findPath(
-        JSON.parse(JSON.stringify(baseGrid)), // Deep clone to avoid reference issues
-        startCell,
-        endCell,
-        algorithm,
-        false, // Don't generate steps for comparison mode
-      )
-
-      const endTime = performance.now()
-
-      newComparisonGrids[algorithm] = resultGrid
-      newComparisonPerformance[algorithm] = {
-        visitedNodes: visitedNodesCount,
-        pathLength,
-        executionTime: Math.round(endTime - startTime),
-      }
-    }
-
-    setComparisonGrids(newComparisonGrids)
-    setComparisonPerformance(newComparisonPerformance)
-    setGridState("idle")
   }
 
   const animateGeneration = () => {
@@ -312,7 +238,6 @@ export default function MazeVisualizer() {
 
   const handleClearAll = () => {
     if (gridState !== "idle") {
-      // Cancel any ongoing animations
       if (animationRef.current) {
         clearTimeout(animationRef.current)
         animationRef.current = null
@@ -326,8 +251,6 @@ export default function MazeVisualizer() {
       pathLength: 0,
       executionTime: 0,
     })
-    setComparisonGrids({})
-    setComparisonPerformance({})
   }
 
   const handleClearPath = () => {
@@ -351,8 +274,6 @@ export default function MazeVisualizer() {
       pathLength: 0,
       executionTime: 0,
     })
-    setComparisonGrids({})
-    setComparisonPerformance({})
   }
 
   const handleSpeedChange = (value) => {
@@ -373,21 +294,13 @@ export default function MazeVisualizer() {
 
   const handleStepModeToggle = (enabled) => {
     setStepMode(enabled)
-
-    // If turning off step mode while in the middle of stepping, continue animation
     if (!enabled && gridState !== "idle" && currentStepRef.current < animationStepsRef.current.length) {
       animateGeneration()
     }
   }
 
-  const handleComparisonAlgorithmsChange = (algorithms) => {
-    setComparisonAlgorithms(algorithms)
-  }
-
   const handleExportMaze = () => {
     const mazeData = exportMaze(grid, startCell, endCell, gridSize)
-
-    // Create a blob and download it
     const blob = new Blob([JSON.stringify(mazeData)], { type: "application/json" })
     const url = URL.createObjectURL(blob)
     const a = document.createElement("a")
@@ -430,8 +343,6 @@ export default function MazeVisualizer() {
       }
     }
     reader.readAsText(file)
-
-    // Reset the input
     if (event.target) {
       event.target.value = ""
     }
@@ -444,9 +355,7 @@ export default function MazeVisualizer() {
         <p className="max-w-2xl mx-auto mt-2 text-gray-600">
           Explore and visualize different maze generation and pathfinding algorithms with this interactive tool.
         </p>
-
         <div className="flex justify-center gap-2 mt-4">
-
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={handleExportMaze} title="Export Maze">
               <Download className="w-4 h-4 mr-1" />
@@ -460,9 +369,7 @@ export default function MazeVisualizer() {
           </div>
         </div>
       </header>
-
       <main className="flex flex-col flex-1 w-full gap-4 p-4 mx-auto max-w-7xl">
-        
         <div className="flex flex-col gap-4 lg:flex-row">
           <div className="flex flex-col flex-1 gap-4">
             <div className="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-md">
@@ -474,7 +381,6 @@ export default function MazeVisualizer() {
                 onCellMouseUp={handleCellMouseUp}
               />
             </div>
-
             <div className="flex gap-4">
               <PerformanceMetrics data={performanceData} />
               <GridControls
@@ -487,11 +393,8 @@ export default function MazeVisualizer() {
                 isRunning={gridState !== "idle"}
               />
             </div>
-            
             <AlgorithmInfo algorithm={selectedAlgorithm} tab={activeTab} />
-            
           </div>
-
           <div className="w-full space-y-4 lg:w-80">
             <ControlPanel
               onGenerate={handleStartMazeGeneration}
