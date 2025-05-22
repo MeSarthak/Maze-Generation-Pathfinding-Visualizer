@@ -9,7 +9,6 @@ import { Button } from "./components/ui/button"
 import { Download, Upload } from "lucide-react"
 import { generateMaze } from "./lib/maze-generators"
 import { findPath } from "./lib/pathfinding"
-import { exportMaze, importMaze } from "./lib/maze-io"
 
 export default function MazeVisualizer() {
   const [gridSize, setGridSize] = useState({ rows: 25, cols: 40 })
@@ -35,7 +34,6 @@ export default function MazeVisualizer() {
 
   useEffect(() => {
     initializeGrid()
-    // eslint-disable-next-line
   }, [gridSize])
 
   const initializeGrid = () => {
@@ -299,55 +297,6 @@ export default function MazeVisualizer() {
     }
   }
 
-  const handleExportMaze = () => {
-    const mazeData = exportMaze(grid, startCell, endCell, gridSize)
-    const blob = new Blob([JSON.stringify(mazeData)], { type: "application/json" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = "maze.json"
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-  }
-
-  const handleImportClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click()
-    }
-  }
-
-  const handleImportMaze = (event) => {
-    const file = event.target.files?.[0]
-    if (!file) return
-
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      try {
-        const content = e.target?.result
-        const {
-          grid: importedGrid,
-          startCell: importedStart,
-          endCell: importedEnd,
-          gridSize: importedSize,
-        } = importMaze(content)
-
-        setGridSize(importedSize)
-        setStartCell(importedStart)
-        setEndCell(importedEnd)
-        setGrid(importedGrid)
-      } catch (error) {
-        console.error("Error importing maze:", error)
-        alert("Invalid maze file format")
-      }
-    }
-    reader.readAsText(file)
-    if (event.target) {
-      event.target.value = ""
-    }
-  }
-
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <header className="px-4 py-6 text-center">
@@ -355,19 +304,7 @@ export default function MazeVisualizer() {
         <p className="max-w-2xl mx-auto mt-2 text-gray-600">
           Explore and visualize different maze generation and pathfinding algorithms with this interactive tool.
         </p>
-        <div className="flex justify-center gap-2 mt-4">
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={handleExportMaze} title="Export Maze">
-              <Download className="w-4 h-4 mr-1" />
-              Export
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleImportClick} title="Import Maze">
-              <Upload className="w-4 h-4 mr-1" />
-              Import
-            </Button>
-            <input type="file" ref={fileInputRef} onChange={handleImportMaze} accept=".json" className="hidden" />
-          </div>
-        </div>
+      
       </header>
       <main className="flex flex-col flex-1 w-full gap-4 p-4 mx-auto max-w-7xl">
         <div className="flex flex-col gap-4 lg:flex-row">
