@@ -3,14 +3,15 @@ import MazeGrid from "./components/maze-grid"
 import ControlPanel from "./components/control-panel"
 import AlgorithmTabs from "./components/algorithm-tabs"
 import PerformanceMetrics from "./components/performance-metrics"
-import AlgorithmInfo from "./components/algorithm-info"
 import GridControls from "./components/grid-controls"
-import { Button } from "./components/ui/button"
-import { Download, Upload } from "lucide-react"
+import ComparisonView from "./components/comparison-view"
 import { generateMaze } from "./lib/maze-generators"
 import { findPath } from "./lib/pathfinding"
+import { Tabs, TabsList, TabsTrigger } from "./components/ui/tabs"
+import { Monitor, SplitSquareVertical } from "lucide-react"
 
 export default function MazeVisualizer() {
+  const [viewMode, setViewMode] = useState("standard") // "standard" or "comparison"
   const [gridSize, setGridSize] = useState({ rows: 25, cols: 40 })
   const [grid, setGrid] = useState([])
   const [startCell, setStartCell] = useState([5, 5])
@@ -304,53 +305,73 @@ export default function MazeVisualizer() {
         <p className="max-w-2xl mx-auto mt-2 text-gray-600">
           Explore and visualize different maze generation and pathfinding algorithms with this interactive tool.
         </p>
-      
+        <div className="flex justify-center mt-4">
+          <Tabs value={viewMode} onValueChange={setViewMode} className="w-auto">
+            <TabsList className="grid w-64 grid-cols-2">
+              <TabsTrigger value="standard" className="flex items-center">
+                <Monitor className="w-4 h-4 mr-2" />
+                Standard
+              </TabsTrigger>
+              <TabsTrigger value="comparison" className="flex items-center">
+                <SplitSquareVertical className="w-4 h-4 mr-2" />
+                Comparison
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
       </header>
       <main className="flex flex-col flex-1 w-full gap-4 p-4 mx-auto max-w-7xl">
-        <div className="flex flex-col gap-4 lg:flex-row">
-          <div className="flex flex-col flex-1 gap-4">
-            <div className="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-md">
-              <MazeGrid
-                grid={grid}
-                onCellClick={handleCellClick}
-                onCellMouseDown={handleCellMouseDown}
-                onCellMouseEnter={handleCellMouseEnter}
-                onCellMouseUp={handleCellMouseUp}
+        {viewMode === "standard" ? (
+          <div className="flex flex-col gap-4 lg:flex-row">
+            <div className="flex flex-col flex-1 gap-4">
+              <div className="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-md">
+                <MazeGrid
+                  grid={grid}
+                  onCellClick={handleCellClick}
+                  onCellMouseDown={handleCellMouseDown}
+                  onCellMouseEnter={handleCellMouseEnter}
+                  onCellMouseUp={handleCellMouseUp}
+                />
+              </div>
+              <div className="flex gap-4">
+                <PerformanceMetrics data={performanceData} />
+                <GridControls
+                  gridSize={gridSize}
+                  onGridSizeChange={handleGridSizeChange}
+                  stepMode={stepMode}
+                  onStepModeToggle={handleStepModeToggle}
+                  onStepForward={handleStepForward}
+                  onStepBackward={handleStepBackward}
+                  isRunning={gridState !== "idle"}
+                />
+              </div>
+            </div>
+            <div className="w-full space-y-4 lg:w-80">
+              <ControlPanel
+                onGenerate={handleStartMazeGeneration}
+                onVisualizePath={handleVisualizePath}
+                onClearPath={handleClearPath}
+                onClearAll={handleClearAll}
+                animationSpeed={animationSpeed}
+                onSpeedChange={handleSpeedChange}
+                gridState={gridState}
+              />
+              <AlgorithmTabs
+                activeTab={activeTab}
+                onTabChange={handleTabChange}
+                selectedAlgorithm={selectedAlgorithm}
+                onAlgorithmSelect={handleAlgorithmSelect}
               />
             </div>
-            <div className="flex gap-4">
-              <PerformanceMetrics data={performanceData} />
-              <GridControls
-                gridSize={gridSize}
-                onGridSizeChange={handleGridSizeChange}
-                stepMode={stepMode}
-                onStepModeToggle={handleStepModeToggle}
-                onStepForward={handleStepForward}
-                onStepBackward={handleStepBackward}
-                isRunning={gridState !== "idle"}
-              />
-            </div>
-            <AlgorithmInfo algorithm={selectedAlgorithm} tab={activeTab} />
           </div>
-          <div className="w-full space-y-4 lg:w-80">
-            <ControlPanel
-              onGenerate={handleStartMazeGeneration}
-              onVisualizePath={handleVisualizePath}
-              onClearPath={handleClearPath}
-              onClearAll={handleClearAll}
-              animationSpeed={animationSpeed}
-              onSpeedChange={handleSpeedChange}
-              gridState={gridState}
-            />
-            <AlgorithmTabs
-              activeTab={activeTab}
-              onTabChange={handleTabChange}
-              selectedAlgorithm={selectedAlgorithm}
-              onAlgorithmSelect={handleAlgorithmSelect}
-            />
-          </div>
-        </div>
+        ) : (
+          <ComparisonView />
+        )}
       </main>
     </div>
   )
 }
+
+
+
+
