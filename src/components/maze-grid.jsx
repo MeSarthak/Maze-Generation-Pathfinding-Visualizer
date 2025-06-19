@@ -1,8 +1,14 @@
 import { useRef, useEffect } from "react"
 
+/**
+ * MazeGrid component
+ * Renders the maze grid using HTML Canvas for better performance
+ * Handles user interactions with the grid
+ */
 export default function MazeGrid({ grid, onCellClick, onCellMouseDown, onCellMouseEnter, onCellMouseUp }) {
   const canvasRef = useRef(null)
 
+  // Redraw the canvas whenever the grid changes
   useEffect(() => {
     if (!grid.length || !canvasRef.current) return
 
@@ -10,8 +16,8 @@ export default function MazeGrid({ grid, onCellClick, onCellMouseDown, onCellMou
     const ctx = canvas.getContext("2d")
     if (!ctx) return
 
-    // Set canvas dimensions
-    const cellSize = 20
+    // Set canvas dimensions based on grid size
+    const cellSize = 20 // Size of each cell in pixels
     const rows = grid.length
     const cols = grid[0].length
 
@@ -21,14 +27,14 @@ export default function MazeGrid({ grid, onCellClick, onCellMouseDown, onCellMou
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-    // Draw grid
+    // Draw grid cells
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < cols; col++) {
         const cell = grid[row][col]
         const x = col * cellSize
         const y = row * cellSize
 
-        // Draw cell background
+        // Set cell color based on its state
         if (cell.isStart) {
           ctx.fillStyle = "#10b981" // Green for start
         } else if (cell.isEnd) {
@@ -61,22 +67,35 @@ export default function MazeGrid({ grid, onCellClick, onCellMouseDown, onCellMou
     }
   }, [grid])
 
+  /**
+   * Converts mouse coordinates to grid cell coordinates
+   * @param {Event} e - Mouse event
+   * @returns {Object|null} Cell coordinates or null if outside grid
+   */
   const getCellCoordinates = (e) => {
-    if (!canvasRef.current || !grid.length) return null
+    if (!canvasRef.current) return null
 
     const canvas = canvasRef.current
     const rect = canvas.getBoundingClientRect()
     const scaleX = canvas.width / rect.width
     const scaleY = canvas.height / rect.height
 
+    // Calculate mouse position relative to canvas
     const x = (e.clientX - rect.left) * scaleX
     const y = (e.clientY - rect.top) * scaleY
 
+    // Convert to grid coordinates
     const cellSize = 20
     const col = Math.floor(x / cellSize)
     const row = Math.floor(y / cellSize)
 
-    if (row >= 0 && row < grid.length && col >= 0 && col < grid[0].length) {
+    // Check if within grid bounds
+    if (
+      row >= 0 &&
+      row < grid.length &&
+      col >= 0 &&
+      col < grid[0].length
+    ) {
       return { row, col }
     }
 
@@ -121,3 +140,5 @@ export default function MazeGrid({ grid, onCellClick, onCellMouseDown, onCellMou
     </div>
   )
 }
+
+

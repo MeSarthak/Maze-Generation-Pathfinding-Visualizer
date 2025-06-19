@@ -11,16 +11,17 @@ import { Tabs, TabsList, TabsTrigger } from "./components/ui/tabs"
 import { Monitor, SplitSquareVertical } from "lucide-react"
 
 export default function MazeVisualizer() {
+  // Main state for the maze visualizer
   const [viewMode, setViewMode] = useState("standard") // "standard" or "comparison"
   const [gridSize, setGridSize] = useState({ rows: 25, cols: 40 })
   const [grid, setGrid] = useState([])
   const [startCell, setStartCell] = useState([5, 5])
   const [endCell, setEndCell] = useState([20, 35])
-  const [animationSpeed, setAnimationSpeed] = useState(50)
-  const [gridState, setGridState] = useState("idle")
-  const [activeTab, setActiveTab] = useState("generation")
+  const [animationSpeed, setAnimationSpeed] = useState(50) // Controls animation delay (lower = faster)
+  const [gridState, setGridState] = useState("idle") // Possible states: "idle", "generating", "visualizing"
+  const [activeTab, setActiveTab] = useState("generation") // "generation" or "pathfinding"
   const [selectedAlgorithm, setSelectedAlgorithm] = useState("recursiveBacktracking")
-  const [isDragging, setIsDragging] = useState(null)
+  const [isDragging, setIsDragging] = useState(null) // Tracks if user is dragging start/end points
   const [performanceData, setPerformanceData] = useState({
     visitedNodes: 0,
     pathLength: 0,
@@ -37,6 +38,10 @@ export default function MazeVisualizer() {
     initializeGrid()
   }, [gridSize])
 
+  /**
+   * Initializes a new grid with the current dimensions
+   * Each cell contains properties for visualization and algorithm data
+   */
   const initializeGrid = () => {
     const newGrid = []
     for (let row = 0; row < gridSize.rows; row++) {
@@ -50,11 +55,11 @@ export default function MazeVisualizer() {
           isPath: false,
           isStart: row === startCell[0] && col === startCell[1],
           isEnd: row === endCell[0] && col === endCell[1],
-          distance: Number.POSITIVE_INFINITY,
-          fScore: Number.POSITIVE_INFINITY,
-          gScore: Number.POSITIVE_INFINITY,
-          hScore: 0,
-          previousNode: null,
+          distance: Number.POSITIVE_INFINITY, // Used by Dijkstra's algorithm
+          fScore: Number.POSITIVE_INFINITY, // Used by A* algorithm (total estimated cost)
+          gScore: Number.POSITIVE_INFINITY, // Used by A* algorithm (cost from start)
+          hScore: 0, // Used by A* algorithm (heuristic estimate to end)
+          previousNode: null, // Used to reconstruct path
         })
       }
       newGrid.push(currentRow)
@@ -118,9 +123,14 @@ export default function MazeVisualizer() {
     setIsDragging(null)
   }
 
+  /**
+   * Handles maze generation based on the selected algorithm
+   * Resets the grid, generates a maze, and animates the process
+   */
   const handleStartMazeGeneration = async () => {
     if (gridState !== "idle") return
 
+    // Reset the grid while preserving start/end points
     const resetGrid = grid.map((row) =>
       row.map((cell) => ({
         ...cell,
@@ -141,6 +151,7 @@ export default function MazeVisualizer() {
       executionTime: 0,
     })
 
+    // Measure performance of maze generation
     const startTime = performance.now()
     const { steps } = await generateMaze(resetGrid, selectedAlgorithm, startCell, endCell)
     const endTime = performance.now()
@@ -149,19 +160,25 @@ export default function MazeVisualizer() {
       executionTime: Math.round(endTime - startTime),
     }))
 
+    // Store animation steps and start animation
     animationStepsRef.current = steps
     currentStepRef.current = 0
 
     if (stepMode) {
-      setGrid(steps[0])
+      setGrid(steps[0]) // In step mode, just show the first step
     } else {
-      animateGeneration()
+      animateGeneration() // In normal mode, animate all steps
     }
   }
 
+  /**
+   * Handles pathfinding visualization based on the selected algorithm
+   * Preserves walls but resets visited/path cells, then animates the search process
+   */
   const handleVisualizePath = async () => {
     if (gridState !== "idle") return
 
+    // Reset the grid but keep walls
     const resetGrid = grid.map((row) =>
       row.map((cell) => ({
         ...cell,
@@ -182,12 +199,13 @@ export default function MazeVisualizer() {
       executionTime: 0,
     })
 
+    // Measure performance of pathfinding algorithm
     const startTime = performance.now()
     const { steps, visitedNodesCount, pathLength } = await findPath(
       resetGrid,
       startCell,
       endCell,
-      activeTab === "pathfinding" ? selectedAlgorithm : "aStar",
+      activeTab === "pathfinding" ? selectedAlgorithm : "aStar", // Use A* by default if not in pathfinding tab
     )
     const endTime = performance.now()
     setPerformanceData({
@@ -196,13 +214,14 @@ export default function MazeVisualizer() {
       executionTime: Math.round(endTime - startTime),
     })
 
+    // Store animation steps and start animation
     animationStepsRef.current = steps
     currentStepRef.current = 0
 
     if (stepMode) {
-      setGrid(steps[0])
+      setGrid(steps[0]) // In step mode, just show the first step
     } else {
-      animateGeneration()
+      animateGeneration() // In normal mode, animate all steps
     }
   }
 
@@ -371,6 +390,10 @@ export default function MazeVisualizer() {
     </div>
   )
 }
+
+
+
+
 
 
 

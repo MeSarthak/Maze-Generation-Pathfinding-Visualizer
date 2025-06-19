@@ -1,3 +1,11 @@
+/**
+ * Main maze generation function that delegates to the appropriate algorithm
+ * @param {Array} grid - The current grid state
+ * @param {string} algorithm - The algorithm to use (recursiveBacktracking, prims, kruskals)
+ * @param {Array} startCell - [row, col] coordinates of start cell
+ * @param {Array} endCell - [row, col] coordinates of end cell
+ * @returns {Object} Results including the final grid and animation steps
+ */
 export async function generateMaze(grid, algorithm, startCell, endCell) {
   switch (algorithm) {
     case "recursiveBacktracking":
@@ -11,12 +19,24 @@ export async function generateMaze(grid, algorithm, startCell, endCell) {
   }
 }
 
-// Helper function to create a deep copy of the grid
+/**
+ * Creates a deep copy of the grid to avoid mutating the original
+ * @param {Array} grid - The grid to clone
+ * @returns {Array} A deep copy of the grid
+ */
 function cloneGrid(grid) {
   return grid.map((row) => row.map((cell) => ({ ...cell })))
 }
 
-// Helper function to get valid neighbors for maze generation
+/**
+ * Gets valid neighbors for maze generation at a specified distance
+ * Used to identify potential walls to remove during maze generation
+ * @param {Array} grid - The current grid
+ * @param {number} row - Current row
+ * @param {number} col - Current column
+ * @param {number} distance - Distance to check (usually 2 for maze generation)
+ * @returns {Array} List of valid neighbor coordinates
+ */
 function getNeighbors(grid, row, col, distance = 2) {
   const neighbors = []
   const directions = [
@@ -277,3 +297,4 @@ function kruskalsAlgorithm(grid, startCell, endCell) {
 
   return { grid: newGrid, steps }
 }
+

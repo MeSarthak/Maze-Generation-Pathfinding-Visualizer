@@ -1,3 +1,12 @@
+/**
+ * Main pathfinding function that delegates to the appropriate algorithm
+ * @param {Array} grid - The current grid state
+ * @param {Array} startCell - [row, col] coordinates of start cell
+ * @param {Array} endCell - [row, col] coordinates of end cell
+ * @param {string} algorithm - The algorithm to use (aStar, dijkstra)
+ * @param {boolean} generateSteps - Whether to generate animation steps
+ * @returns {Object} Results including grid, steps, and performance metrics
+ */
 export async function findPath(grid, startCell, endCell, algorithm, generateSteps = true) {
   switch (algorithm) {
     case "aStar":
@@ -9,7 +18,11 @@ export async function findPath(grid, startCell, endCell, algorithm, generateStep
   }
 }
 
-// Helper function to create a deep copy of the grid
+/**
+ * Creates a deep copy of the grid to avoid mutating the original
+ * @param {Array} grid - The grid to clone
+ * @returns {Array} A deep copy of the grid
+ */
 function cloneGrid(grid) {
   return grid.map((row) => row.map((cell) => ({ ...cell })))
 }
@@ -265,3 +278,4 @@ function dijkstraAlgorithm(grid, startCell, endCell, generateSteps = true) {
     pathLength: 0,
   }
 }
+

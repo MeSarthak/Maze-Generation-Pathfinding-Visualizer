@@ -6,8 +6,13 @@ import { Play, Zap, RotateCcw, Trash2 } from "lucide-react";
 import { generateMaze } from "../lib/maze-generators";
 import { findPath } from "../lib/pathfinding";
 
+/**
+ * ComparisonView component
+ * Provides a side-by-side comparison of two different pathfinding algorithms
+ * running on the same maze structure
+ */
 export default function ComparisonView() {
-  // Basic state
+  // Basic state for grid configuration
   const [gridSize] = useState({ rows: 15, cols: 25 });
   const [leftGrid, setLeftGrid] = useState([]);
   const [rightGrid, setRightGrid] = useState([]);
@@ -15,13 +20,13 @@ export default function ComparisonView() {
   const [endCell, setEndCell] = useState([10, 20]);
   const [animationSpeed] = useState(50); // Fixed animation speed
   const [gridState, setGridState] = useState("idle"); // idle, generating, visualizing
-  const [isDragging, setIsDragging] = useState(null);
+  const [isDragging, setIsDragging] = useState(null); // Tracks if user is dragging start/end points
   
-  // Algorithm selection - only pathfinding
+  // Algorithm selection - only pathfinding algorithms for comparison
   const [leftAlgorithm, setLeftAlgorithm] = useState("aStar");
   const [rightAlgorithm, setRightAlgorithm] = useState("dijkstra");
   
-  // Performance metrics
+  // Performance metrics for each algorithm
   const [leftMetrics, setLeftMetrics] = useState({
     visitedNodes: 0,
     pathLength: 0,
@@ -34,13 +39,16 @@ export default function ComparisonView() {
     executionTime: 0,
   });
   
-  // Animation refs
-  const animationRef = useRef(null);
-  const leftAnimationStepsRef = useRef([]);
-  const rightAnimationStepsRef = useRef([]);
-  const currentStepRef = useRef(0);
+  // Animation refs to store and control animation state
+  const animationRef = useRef(null); // Stores the setTimeout reference
+  const leftAnimationStepsRef = useRef([]); // Stores animation steps for left grid
+  const rightAnimationStepsRef = useRef([]); // Stores animation steps for right grid
+  const currentStepRef = useRef(0); // Tracks current animation step
   
-  // Initialize grids on component mount
+  /**
+   * Initialize both grids on component mount
+   * Cleanup any running animations on unmount
+   */
   useEffect(() => {
     initializeGrids();
     
@@ -51,6 +59,10 @@ export default function ComparisonView() {
     };
   }, []);
 
+  /**
+   * Creates empty grids with start and end positions
+   * Both grids are identical at initialization
+   */
   const initializeGrids = () => {
     const newGrid = [];
     for (let row = 0; row < gridSize.rows; row++) {
@@ -75,10 +87,13 @@ export default function ComparisonView() {
     }
     
     setLeftGrid(newGrid);
-    setRightGrid(JSON.parse(JSON.stringify(newGrid)));
+    setRightGrid(JSON.parse(JSON.stringify(newGrid))); // Deep copy to ensure separate references
   };
 
-  // Cell interaction handlers
+  /**
+   * Toggles a wall on/off when a cell is clicked
+   * Mirrors the change to both grids to keep them identical
+   */
   const handleCellClick = (row, col, side) => {
     if (gridState !== "idle") return;
     
@@ -92,7 +107,7 @@ export default function ComparisonView() {
     cell.isWall = !cell.isWall;
     setGrid(grid);
     
-    // Mirror the wall to the other grid
+    // Mirror the wall to the other grid to keep both mazes identical
     const otherGrid = side === "left" ? [...rightGrid] : [...leftGrid];
     const otherSetGrid = side === "left" ? setRightGrid : setLeftGrid;
     
@@ -151,11 +166,14 @@ export default function ComparisonView() {
     setIsDragging(null);
   };
 
-  // Algorithm handlers
+  /**
+   * Generates a maze using recursive backtracking algorithm
+   * Applies the same maze to both grids
+   */
   const handleGenerateMaze = async () => {
     if (gridState !== "idle") return;
     
-    // Reset both grids
+    // Reset both grids to empty state
     const resetGrid = [];
     for (let row = 0; row < gridSize.rows; row++) {
       const currentRow = [];
@@ -183,7 +201,7 @@ export default function ComparisonView() {
     
     setGridState("generating");
     
-    // Reset metrics
+    // Reset performance metrics
     setLeftMetrics({
       visitedNodes: 0,
       pathLength: 0,
@@ -209,6 +227,10 @@ export default function ComparisonView() {
     setGridState("idle");
   };
   
+  /**
+   * Runs both selected pathfinding algorithms simultaneously
+   * Collects and displays performance metrics for comparison
+   */
   const handleCompareAlgorithms = async () => {
     if (gridState !== "idle") return;
     
@@ -244,7 +266,7 @@ export default function ComparisonView() {
     
     setGridState("visualizing");
     
-    // Run left algorithm
+    // Run left algorithm and measure performance
     const leftStartTime = performance.now();
     const { steps: leftSteps, visitedNodesCount: leftVisited, pathLength: leftPath } = 
       await findPath(resetLeftGrid, startCell, endCell, leftAlgorithm);
@@ -256,7 +278,7 @@ export default function ComparisonView() {
       executionTime: Math.round(leftEndTime - leftStartTime),
     });
     
-    // Run right algorithm
+    // Run right algorithm and measure performance
     const rightStartTime = performance.now();
     const { steps: rightSteps, visitedNodesCount: rightVisited, pathLength: rightPath } = 
       await findPath(resetRightGrid, startCell, endCell, rightAlgorithm);
@@ -268,15 +290,18 @@ export default function ComparisonView() {
       executionTime: Math.round(rightEndTime - rightStartTime),
     });
     
-    // Store animation steps
+    // Store animation steps and start animation
     leftAnimationStepsRef.current = leftSteps;
     rightAnimationStepsRef.current = rightSteps;
     currentStepRef.current = 0;
     
-    // Start animation
     animateComparison();
   };
   
+  /**
+   * Animates both algorithms simultaneously
+   * Handles different animation lengths by continuing until both are complete
+   */
   const animateComparison = () => {
     const leftMaxSteps = leftAnimationStepsRef.current.length;
     const rightMaxSteps = rightAnimationStepsRef.current.length;
@@ -297,9 +322,9 @@ export default function ComparisonView() {
     
     currentStepRef.current++;
     
-    // Fix: Use animationSpeed directly instead of 101-animationSpeed
-    // Higher animationSpeed value should mean faster animation (less delay)
-    const delay = 210 - animationSpeed * 2; // This creates a range from 10ms (fast) to 190ms (slow)
+    // Calculate delay based on animation speed
+    // Lower delay = faster animation
+    const delay = 210 - animationSpeed * 2; 
     animationRef.current = setTimeout(animateComparison, delay);
   };
   
@@ -537,11 +562,6 @@ export default function ComparisonView() {
     </div>
   );
 }
-
-
-
-
-
 
 
 
