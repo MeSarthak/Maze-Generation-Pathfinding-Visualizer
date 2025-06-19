@@ -167,7 +167,7 @@ export default function ComparisonView() {
   };
 
   /**
-   * Generates a maze using recursive backtracking algorithm
+   * Generates a maze using kruskals algorithm
    * Applies the same maze to both grids
    */
   const handleGenerateMaze = async () => {
@@ -214,9 +214,9 @@ export default function ComparisonView() {
       executionTime: 0,
     });
     
-    // Generate maze - always use recursiveBacktracking for comparison view
+    // Generate maze - always use kruskals for comparison view
     const startTime = performance.now();
-    const { steps } = await generateMaze(resetGrid, "recursiveBacktracking", startCell, endCell);
+    const { steps } = await generateMaze(resetGrid, "kruskals", startCell, endCell);
     const endTime = performance.now();
     
     // Apply final maze to both grids
